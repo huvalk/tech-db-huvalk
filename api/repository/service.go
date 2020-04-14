@@ -14,9 +14,9 @@ func (r *PostgresRepository) ClearAll() (stat int) {
 
 func (r *PostgresRepository) GetStatus() (res *models.Status, stat int) {
 	res = &models.Status{}
-	r.db.QueryRow("SELECT reltuples AS approximate_row_count FROM pg_class WHERE relname = 'forum';").Scan(&res.Forum)
-	r.db.QueryRow("SELECT reltuples AS approximate_row_count FROM pg_class WHERE relname = 'post';").Scan(&res.Post)
-	r.db.QueryRow("SELECT reltuples AS approximate_row_count FROM pg_class WHERE relname = 'thread';").Scan(&res.Thread)
-	r.db.QueryRow(`SELECT reltuples AS approximate_row_count FROM pg_class WHERE relname = 'users';`).Scan(&res.User)
+	r.db.QueryRow("SELECT count(*) from forum;").Scan(&res.Forum)
+	r.db.QueryRow("SELECT count(*) from post;").Scan(&res.Post)
+	r.db.QueryRow("SELECT count(*) from thread;").Scan(&res.Thread)
+	r.db.QueryRow(`SELECT count(*) from users;`).Scan(&res.User)
 	return res, 200
 }
