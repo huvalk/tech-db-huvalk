@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/huvalk/tech-db-huvalk/api/models"
-	"log"
 	"strconv"
 	"time"
 )
@@ -88,10 +87,7 @@ func (r *PostgresRepository) VoteForThread(slug string, vote *models.Vote) (res 
 	threadID, errParse := strconv.ParseInt(slug, 10, 64)
 
 	if errParse != nil {
-		result, err := r.db.Exec("vote_for_thread_with_slug", vote.Voice, slug, vote.Nickname)
-		if err != nil {
-			log.Print(err)
-		}
+		result, _ := r.db.Exec("vote_for_thread_with_slug", vote.Voice, slug, vote.Nickname)
 
     if rowsA := result.RowsAffected(); rowsA == 0 {
 			return nil, 404
@@ -101,10 +97,7 @@ func (r *PostgresRepository) VoteForThread(slug string, vote *models.Vote) (res 
 		r.db.QueryRow("get_thread_with_slug", slug).Scan(&res.Author, &res.Created, &res.Forum, &res.ID, &res.Message,
 			&res.Slug, &res.Title, &res.Votes)
 	} else {
-		result, err := r.db.Exec("vote_for_thread_with_id", vote.Voice, threadID, vote.Nickname)
-		if err != nil {
-			log.Print(err)
-		}
+		result, _ := r.db.Exec("vote_for_thread_with_id", vote.Voice, threadID, vote.Nickname)
 
 		//TODO Ввести NullString
 		if rowsA := result.RowsAffected(); rowsA == 0 {

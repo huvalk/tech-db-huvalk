@@ -3,7 +3,6 @@ package repository
 import (
 	"github.com/huvalk/tech-db-huvalk/api/models"
 	"github.com/lib/pq"
-	"log"
 	"strconv"
 	"time"
 )
@@ -62,9 +61,6 @@ func (r *PostgresRepository) CreatePosts(threadSlug string, posts models.Posts) 
 		parents = append(parents, post.ID)
 		_, err = r.db.Exec("create_post", userID, post.Author, slugForum, forumId, post.Message, post.Parent, threadID,
 			currentTime, parents, parents[0], post.ID)
-		if err != nil {
-			log.Print(err)
-		}
 
 		post.Forum = slugForum
 		post.Created = currentTime

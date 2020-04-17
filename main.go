@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	httpHuvalk "github.com/huvalk/tech-db-huvalk/api/http"
 	"github.com/huvalk/tech-db-huvalk/api/repository"
 	"github.com/jackc/pgx"
-	_ "github.com/lib/pq"
+	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 	"os"
@@ -32,29 +31,29 @@ func main() {
 	repo := repository.NewPostgresRepository(db)
 	handlers := httpHuvalk.NewHandler(repo)
 
-	router := mux.NewRouter().PathPrefix("/api").Subrouter()
+	router := echo.New()
 
-	router.HandleFunc("/service/status", handlers.ServiceGetStatus).Methods("GET")
-	router.HandleFunc("/service/clear", handlers.ServiceClear).Methods("POST")
+	router.GET("/api/service/status", handlers.ServiceGetStatus)
+	router.POST("/api/service/clear", handlers.ServiceClear)
 
-	router.HandleFunc("/user/{nickname}/create", handlers.UserCreate).Methods("POST")
-	router.HandleFunc("/user/{nickname}/profile", handlers.UserGet).Methods("GET")
-	router.HandleFunc("/user/{nickname}/profile", handlers.UserChange).Methods("POST")
+	router.POST("/api/user/:nickname/create", handlers.UserCreate)
+	router.GET("/api/user/:nickname/profile", handlers.UserGet)
+	router.POST("/api/user/:nickname/profile", handlers.UserChange)
 
-	router.HandleFunc("/forum/create", handlers.ForumCreate).Methods("POST")
-	router.HandleFunc("/forum/{slug}/details", handlers.ForumGet).Methods("GET")
-	router.HandleFunc("/forum/{slug}/threads", handlers.ForumGetListOfThreads).Methods("GET")
-	router.HandleFunc("/forum/{slug}/users", handlers.ForumGetListOfUsers).Methods("GET")
+	router.POST("/api/forum/create", handlers.ForumCreate)
+	router.GET("/api/forum/:slug/details", handlers.ForumGet)
+	router.GET("/api/forum/:slug/threads", handlers.ForumGetListOfThreads)
+	router.GET("/api/forum/:slug/users", handlers.ForumGetListOfUsers)
 
-	router.HandleFunc("/forum/{slug}/create", handlers.ForumCreateThread).Methods("POST")
-	router.HandleFunc("/thread/{slug_or_id}/details", handlers.ThreadGetDetales).Methods("GET")
-	router.HandleFunc("/thread/{slug_or_id}/details", handlers.ThreadChange).Methods("POST")
-	router.HandleFunc("/thread/{slug_or_id}/vote", handlers.ThreadVote).Methods("POST")
+	router.POST("/api/forum/:slug/create", handlers.ForumCreateThread)
+	router.GET("/api/thread/:slug_or_id/details", handlers.ThreadGetDetales)
+	router.POST("/api/thread/:slug_or_id/details", handlers.ThreadChange)
+	router.POST("/api/thread/:slug_or_id/vote", handlers.ThreadVote)
 
-	router.HandleFunc("/thread/{slug_or_id}/create", handlers.PostsCreate).Methods("POST")
-	router.HandleFunc("/thread/{slug_or_id}/posts", handlers.ThreadGetListOfPost).Methods("GET")
-	router.HandleFunc("/post/{id}/details", handlers.PostChangeDetails).Methods("POST")
-	router.HandleFunc("/post/{id}/details", handlers.PostGetDetails).Methods("GET")
+	router.POST("/api/thread/:slug_or_id/create", handlers.PostsCreate)
+	router.GET("/api/thread/:slug_or_id/posts", handlers.ThreadGetListOfPost)
+	router.POST("/api/post/:id/details", handlers.PostChangeDetails)
+	router.GET("/api/post/:id/details", handlers.PostGetDetails)
 
 	http.Handle("/", router)
 	err = http.ListenAndServe(":5000", router)

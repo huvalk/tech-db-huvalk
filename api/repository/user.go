@@ -80,8 +80,8 @@ func (r *PostgresRepository) GetListOfUsers(slug, limit, since, desc string) (mo
 	}
 
 	getThread := "SELECT u.nickname, u.fullname, u.email, u.about " +
-		"FROM users u " +
-		"JOIN users_of_forum f on f.user_id = u.id " +
+		"FROM users_of_forum f  " +
+		"JOIN  users u on f.user_id = u.id " +
 		"WHERE f.forum_id=$1 " + since +
 		"ORDER BY u.nickname " + desc + limit
 

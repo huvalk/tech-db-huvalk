@@ -2,10 +2,9 @@ package httpHuvalk
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"github.com/huvalk/tech-db-huvalk/api/models"
 	"github.com/huvalk/tech-db-huvalk/api/repository"
-	"net/http"
+	"github.com/labstack/echo/v4"
 	"strings"
 )
 
@@ -19,374 +18,339 @@ func NewHandler(r *repository.PostgresRepository) *Handler {
 	}
 }
 
-func (h *Handler) ForumCreate(w http.ResponseWriter, r *http.Request) {
+var err = models.Error{Message: "Can't find user with id\n"}
+
+func (h *Handler) ForumCreate(c echo.Context) error {
 	var newForum models.Forum
-	json.NewDecoder(r.Body).Decode(&newForum)
-	w.Header().Set("Content-Type", "application/json")
+	json.NewDecoder(c.Request().Body).Decode(&newForum)
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultForum, resultStatus := h.repo.CreateForum(&newForum)
 
 	switch resultStatus {
 	case 201:
-		resultJSON, _ := json.Marshal(newForum)
-		w.WriteHeader(http.StatusCreated)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(newForum)
+		return c.JSON(resultStatus, newForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find user with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	case 409:
-		resultJSON, _ := json.Marshal(*resultForum)
-		w.WriteHeader(http.StatusConflict)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultForum)
+		return c.JSON(resultStatus, resultForum)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ForumCreateThread(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ForumCreateThread(c echo.Context) error {
 	var newThread models.Thread
-	json.NewDecoder(r.Body).Decode(&newThread)
-	newThread.Forum = mux.Vars(r)["slug"]
-	w.Header().Set("Content-Type", "application/json")
+	json.NewDecoder(c.Request().Body).Decode(&newThread)
+	newThread.Forum = c.Param("slug")
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultThread, resultStatus := h.repo.CreateThread(&newThread)
 
 	switch resultStatus {
 	case 201:
-		resultJSON, _ := json.Marshal(*resultThread)
-		w.WriteHeader(http.StatusCreated)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find user with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	case 409:
-		resultJSON, _ := json.Marshal(*resultThread)
-		w.WriteHeader(http.StatusConflict)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultThread)
+		return c.JSON(resultStatus, resultThread)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ForumGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func (h *Handler) ForumGet(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
 
-	resultForum, resultStatus := h.repo.GetForum(mux.Vars(r)["slug"])
+	resultForum, resultStatus := h.repo.GetForum(c.Param("slug"))
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(*resultForum)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultForum)
+		return c.JSON(resultStatus, resultForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find user with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ForumGetListOfThreads(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug"]
-	limit := r.FormValue("limit")
-	since := r.FormValue("since")
-	desc := r.FormValue("desc")
+func (h *Handler) ForumGetListOfThreads(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug")
+	limit := c.QueryParam("limit")
+	since := c.QueryParam("since")
+	desc := c.QueryParam("desc")
 
 	resultForum, resultStatus := h.repo.GetListOfThreads(slug, limit, since, desc)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultForum)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultForum)
+		return c.JSON(resultStatus, resultForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find threads\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ForumGetListOfUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug"]
-	limit := r.FormValue("limit")
-	since := r.FormValue("since")
-	desc := r.FormValue("desc")
+func (h *Handler) ForumGetListOfUsers(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug")
+	limit := c.QueryParam("limit")
+	since := c.QueryParam("since")
+	desc := c.QueryParam("desc")
 
 	resultForum, resultStatus := h.repo.GetListOfUsers(slug, limit, since, desc)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultForum)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultForum)
+		return c.JSON(resultStatus, resultForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find forum\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) PostChangeDetails(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["id"]
+func (h *Handler) PostChangeDetails(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("id")
 	var newPost models.PostUpdate
-	json.NewDecoder(r.Body).Decode(&newPost)
+	json.NewDecoder(c.Request().Body).Decode(&newPost)
 
 	resultThread, resultStatus := h.repo.ChangePost(slug, &newPost)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultThread)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find post\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) PostGetDetails(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["id"]
-	related := strings.Split(r.FormValue("related"), ",")
+func (h *Handler) PostGetDetails(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("id")
+	related := strings.Split(c.QueryParam("related"), ",")
 
 	resultForum, resultStatus := h.repo.PostDetails(slug, related)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultForum)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultForum)
+		return c.JSON(resultStatus, resultForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find forum\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ServiceGetStatus(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func (h *Handler) ServiceGetStatus(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
 	resultStat, resultStatus := h.repo.GetStatus()
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(*resultStat)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultStat)
+		return c.JSON(resultStatus, resultStat)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ServiceClear(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ServiceClear(c echo.Context) error {
 	resultStatus := h.repo.ClearAll()
 
 	switch resultStatus {
 	case 200:
-		w.WriteHeader(http.StatusOK)
+		return c.NoContent(resultStatus)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) PostsCreate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug_or_id"]
+func (h *Handler) PostsCreate(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug_or_id")
 	var newPosts models.Posts
-	json.NewDecoder(r.Body).Decode(&newPosts)
+	json.NewDecoder(c.Request().Body).Decode(&newPosts)
 
 	resultThread, resultStatus := h.repo.CreatePosts(slug, newPosts)
 
 	switch resultStatus {
 	case 201:
-		resultJSON, _ := json.Marshal(resultThread)
-		w.WriteHeader(http.StatusCreated)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find threads\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	case 409:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find parent post\n"})
-		w.WriteHeader(http.StatusConflict)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ThreadGetDetales(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug_or_id"]
+func (h *Handler) ThreadGetDetales(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug_or_id")
 	var newPosts models.Posts
-	json.NewDecoder(r.Body).Decode(&newPosts)
+	json.NewDecoder(c.Request().Body).Decode(&newPosts)
 
 	resultThread, resultStatus := h.repo.GetThread(slug)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultThread)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find thread\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ThreadChange(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ThreadChange(c echo.Context) error {
 	var changeThread models.ThreadUpdate
-	json.NewDecoder(r.Body).Decode(&changeThread)
-	slug := mux.Vars(r)["slug_or_id"]
-	w.Header().Set("Content-Type", "application/json")
+	json.NewDecoder(c.Request().Body).Decode(&changeThread)
+	slug := c.Param("slug_or_id")
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultThread, resultStatus := h.repo.ChangeThread(slug, &changeThread)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(*resultThread)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find thread with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ThreadGetListOfPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug_or_id"]
-	limit := r.FormValue("limit")
-	since := r.FormValue("since")
-	desc := r.FormValue("desc")
-	sort := r.FormValue("sort")
+func (h *Handler) ThreadGetListOfPost(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug_or_id")
+	limit := c.QueryParam("limit")
+	since := c.QueryParam("since")
+	desc := c.QueryParam("desc")
+	sort := c.QueryParam("sort")
 
 	resultForum, resultStatus := h.repo.GetListOfPosts(slug, limit, since, sort, desc)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultForum)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultForum)
+		return c.JSON(resultStatus, resultForum)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find threads\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) ThreadVote(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	slug := mux.Vars(r)["slug_or_id"]
+func (h *Handler) ThreadVote(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "application/json")
+	slug := c.Param("slug_or_id")
 	var newVote models.Vote
-	json.NewDecoder(r.Body).Decode(&newVote)
+	json.NewDecoder(c.Request().Body).Decode(&newVote)
 
 	resultThread, resultStatus := h.repo.VoteForThread(slug, &newVote)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(resultThread)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultThread)
+		return c.JSON(resultStatus, resultThread)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find threads\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) UserCreate(w http.ResponseWriter, r *http.Request) {
-	userNickname := mux.Vars(r)["nickname"]
+func (h *Handler) UserCreate(c echo.Context) error {
+	userNickname := c.Param("nickname")
 
 	var newUser models.User
-	json.NewDecoder(r.Body).Decode(&newUser)
+	json.NewDecoder(c.Request().Body).Decode(&newUser)
 	newUser.Nickname = userNickname
-	w.Header().Set("Content-Type", "application/json")
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultUsers, resultStatus := h.repo.CreateUser(&newUser)
 
 	switch resultStatus {
 	case 201:
-		resultJSON, _ := json.Marshal(newUser)
-
-		w.WriteHeader(http.StatusCreated)
-		w.Write(resultJSON)
-
+		//resultJSON, _ := json.Marshal(newUser)
+		return c.JSON(resultStatus, newUser)
 	case 409:
-		resultJSON, _ := json.Marshal(resultUsers)
-		w.WriteHeader(http.StatusConflict)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(resultUsers)
+		return c.JSON(resultStatus, resultUsers)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) UserGet(w http.ResponseWriter, r *http.Request) {
-	userNickname := mux.Vars(r)["nickname"]
-	w.Header().Set("Content-Type", "application/json")
+func (h *Handler) UserGet(c echo.Context) error {
+	userNickname := c.Param("nickname")
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultUser, resultStatus := h.repo.GetUser(userNickname)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(*resultUser)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultUser)
+		return c.JSON(resultStatus, resultUser)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find user with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
 
-func (h *Handler) UserChange(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UserChange(c echo.Context) error {
 	var changeUser models.UserUpdate
-	json.NewDecoder(r.Body).Decode(&changeUser)
-	userNickname := mux.Vars(r)["nickname"]
-	w.Header().Set("Content-Type", "application/json")
+	json.NewDecoder(c.Request().Body).Decode(&changeUser)
+	userNickname := c.Param("nickname")
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	resultUser, resultStatus := h.repo.ChangeUser(userNickname, &changeUser)
 
 	switch resultStatus {
 	case 200:
-		resultJSON, _ := json.Marshal(*resultUser)
-		w.WriteHeader(http.StatusOK)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(*resultUser)
+		return c.JSON(resultStatus, resultUser)
 	case 404:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Can't find user with id\n"})
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	case 409:
-		resultJSON, _ := json.Marshal(models.Error{Message: "Email already in use\n"})
-		w.WriteHeader(http.StatusConflict)
-		w.Write(resultJSON)
+		//resultJSON, _ := json.Marshal(err)
+		return c.JSON(resultStatus, err)
 	default:
-		w.WriteHeader(http.StatusInternalServerError)
+		return echo.ErrInternalServerError
 	}
 }
