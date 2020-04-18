@@ -33,6 +33,6 @@ CREATE INDEX index_thread_sort ON thread (forum_id, created);
 -- // покрывающие
 
 CREATE UNIQUE INDEX index_users_of_forum_forum_id_user_id ON users_of_forum (forum_id, user_nickname);
-CREATE INDEX index_users_full ON users (nickname, id) include (email, about, fullname);
-CREATE INDEX index_forum_full on forum (slug, id) include (title, moderator_name, threads, posts);
-CREATE UNIQUE INDEX index_thread_full ON thread (forum_id, created) include (id, slug, title, message, forum_slug, author_name, created, votes);
+CREATE INDEX index_users_full ON users (nickname, id, email, about, fullname);
+CREATE INDEX index_forum_full on forum (slug, id, title, moderator_name, threads, posts);
+CREATE UNIQUE INDEX index_thread_full ON thread (forum_id, created, id, slug, title, message, forum_slug, author_name, created, votes);
