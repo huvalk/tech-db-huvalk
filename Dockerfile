@@ -24,7 +24,7 @@ RUN echo "host all  all    0.0.0.0/0  md5\n\
 host all all 0.0.0.0/0  md5\
 " >> /etc/postgresql/$PGVER/main/pg_hba.conf
 RUN /etc/init.d/postgresql start &&\
-    psql base postgres -h 127.0.0.1 -f api/sql/base_V5.sql &&\
+    psql base postgres -h 127.0.0.1 -f api/sql/base_V4.sql &&\
     psql base postgres -h 127.0.0.1 -f api/sql/indexes.sql &&\
     /etc/init.d/postgresql stop
 RUN echo "listen_addresses='*'\n\
