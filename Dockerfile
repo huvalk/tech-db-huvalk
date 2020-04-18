@@ -6,8 +6,12 @@ RUN go mod tidy && go build main.go
 
 FROM ubuntu:18.04 AS release
 
-ENV PGVER 10
-RUN apt -y update && apt install -y postgresql-$PGVER
+ENV PGVER 12
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get -y update && apt-get -y install gnupg && apt-get -y install wget
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" | tee  /etc/apt/sources.list.d/pgdg.list
+RUN apt-get -y update && apt-get install -y postgresql-$PGVER
 USER postgres
 ENV PGPASSWORD '12345'
 
