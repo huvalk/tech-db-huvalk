@@ -8,6 +8,7 @@ package models
 // Status status
 //
 // swagger:model Status
+//easyjson:json
 type Status struct {
 
 	// Кол-во разделов в базе данных.

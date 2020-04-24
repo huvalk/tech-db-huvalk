@@ -9,6 +9,7 @@ package models
 //
 //
 // swagger:model User
+//easyjson:json
 type User struct {
 
 	// Описание пользователя.

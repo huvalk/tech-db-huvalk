@@ -8,4 +8,5 @@ package models
 // Users users
 //
 // swagger:model Users
+//easyjson:json
 type Users []*User

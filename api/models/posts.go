@@ -8,4 +8,5 @@ package models
 // Posts posts
 //
 // swagger:model Posts
+//easyjson:json
 type Posts []*Post

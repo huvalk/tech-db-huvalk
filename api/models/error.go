@@ -8,6 +8,7 @@ package models
 // Error error
 //
 // swagger:model Error
+//easyjson:json
 type Error struct {
 
 	// Текстовое описание ошибки.

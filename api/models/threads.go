@@ -8,4 +8,5 @@ package models
 // Threads threads
 //
 // swagger:model Threads
+//easyjson:json
 type Threads []*Thread

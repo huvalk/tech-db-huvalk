@@ -9,6 +9,7 @@ package models
 //
 //
 // swagger:model PostFull
+//easyjson:json
 type PostFull struct {
 
 	// author

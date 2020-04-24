@@ -10,6 +10,7 @@ package models
 //
 //
 // swagger:model ThreadUpdate
+//easyjson:json
 type ThreadUpdate struct {
 
 	// Описание ветки обсуждения.

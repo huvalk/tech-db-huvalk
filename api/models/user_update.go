@@ -13,6 +13,7 @@ import (
 //
 //
 // swagger:model UserUpdate
+//easyjson:json
 type UserUpdate struct {
 
 	// Описание пользователя.

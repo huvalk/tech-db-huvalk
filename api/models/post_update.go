@@ -10,6 +10,7 @@ package models
 //
 //
 // swagger:model PostUpdate
+//easyjson:json
 type PostUpdate struct {
 
 	// Собственно сообщение форума.

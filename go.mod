@@ -13,6 +13,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/lib/pq v1.3.0
+	github.com/mailru/easyjson v0.7.1
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc // indirect
 	go.mongodb.org/mongo-driver v1.3.1 // indirect

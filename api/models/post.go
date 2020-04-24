@@ -13,6 +13,7 @@ import (
 //
 //
 // swagger:model Post
+//easyjson:json
 type Post struct {
 
 	// Автор, написавший данное сообщение.

@@ -9,6 +9,7 @@ package models
 //
 //
 // swagger:model Vote
+//easyjson:json
 type Vote struct {
 
 	// Идентификатор пользователя.
