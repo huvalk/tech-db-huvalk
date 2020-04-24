@@ -8,7 +8,6 @@ require (
 	github.com/go-openapi/errors v0.19.4 // indirect
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
-	github.com/gorilla/mux v1.7.4
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/labstack/echo/v4 v4.1.16
