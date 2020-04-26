@@ -2,7 +2,6 @@ FROM golang:1.11-stretch AS build
 
 ADD ./ /opt/build/tech-db-huvalk/
 WORKDIR /opt/build/tech-db-huvalk/
-RUN go get github.com/gobuffalo
 RUN go get github.com/mailru/easyjson
 RUN go build main.go
 
