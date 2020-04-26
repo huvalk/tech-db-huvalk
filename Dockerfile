@@ -2,7 +2,7 @@ FROM golang:1.11-stretch AS build
 
 ADD ./ /opt/build/tech-db-huvalk/
 WORKDIR /opt/build/tech-db-huvalk/
-RUN go mod tidy && go build main.go
+RUN go build main.go
 
 FROM ubuntu:18.04 AS release
 
@@ -46,5 +46,4 @@ ENV DB_PASSWORD '12345'
 ENV DB_NAME 'base'
 ENV DB_HOST '/var/run/postgresql/'
 
-CMD service postgresql start &&\
-     ./main
+CMD service postgresql start && ./main
