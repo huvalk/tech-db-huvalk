@@ -31,8 +31,8 @@ RUN /etc/init.d/postgresql start &&\
 RUN echo "listen_addresses='*'\n\
 synchronous_commit = off\n\
 fsync = off\n\
-shared_buffers = 512MB\n\
-effective_cache_size = 512MB\n\
+shared_buffers = 256MB\n\
+effective_cache_size = 1024MB\n\
 full_page_writes = off\n\
 fsync = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
 #wal_compression = on
