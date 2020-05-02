@@ -34,8 +34,7 @@ fsync = off\n\
 shared_buffers = 512MB\n\
 effective_cache_size = 1024MB\n\
 full_page_writes = off\n\
-fsync = off\n\
-wal_writer_delay = 5000ms" >> /etc/postgresql/$PGVER/main/postgresql.conf
+fsync = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
 #wal_compression = on
 EXPOSE 5432
 
